@@ -1,0 +1,18 @@
+model:
+  type: qllm
+  path: ./models/Mistral-7B-Instruct-v0.2
+  block_size: 64
+  n_init: 128
+  n_local: 256
+  topk: 4
+  repr_topk: 4
+  max_cached_block: 32
+  exc_block_size: 256
+  fattn: false
+  base: 1000000
+  distance_scale: 1.0
+  question_weight: 1.0
+
+max_len: 2147483647
+chunk_size: 8192
+conv_type: mistral-inst
