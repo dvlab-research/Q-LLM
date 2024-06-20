@@ -82,3 +82,5 @@ data_to_save = {
 }
 print(data_to_save)
 
+with open(output_path, 'a') as jsonl_file:
+    jsonl_file.write(json.dumps(data_to_save) + '\n')
