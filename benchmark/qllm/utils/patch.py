@@ -43,7 +43,8 @@ def patch_hf(
     # This approach lacks scalability and will be refactored.
     from qllm.models.modeling_llama import LlamaForCausalLM, LlamaAttention, LlamaModel, BaseModelOutputWithPast
     from qllm.models.modeling_mistral import MistralForCausalLM, MistralAttention, MistralModel
-    from transformers.models.qwen2.modeling_qwen2 import Qwen2ForCausalLM, Qwen2Attention, Qwen2Model
+    from llava.model.language_model.llava_llama import LlavaLlamaForCausalLM, LlavaLlamaModel
+    from llava.model.language_model.llava_mistral import LlavaMistralForCausalLM, LlavaMistralModel
 
     def model_forward(
         self,
@@ -140,14 +141,14 @@ def patch_hf(
     elif isinstance(model, MistralForCausalLM):
         Attention = MistralAttention
         Model = MistralModel
-    # elif isinstance(model, Qwen2ForCausalLM):
-    #     Attention = Qwen2Attention
-    #     Model = Qwen2Model
-    # elif model.__class__.__name__ == "MiniCPMForCausalLM":
-    #     Attention = model.model.layers[0].self_attn.__class__
-    #     Model = model.model.__class__
+    elif isinstance(model, LlavaLlamaForCausalLM):
+        Attention = LlamaAttention
+        Model = LlavaLlamaModel
+    elif isinstance(model, LlavaMistralForCausalLM):
+        Attention = MistralAttention
+        Model = LlavaMistralModel
     else:
-        raise ValueError(f"Only supports llama and mistral models, get: {type(model)}")
+        raise ValueError(f"Only supports llama, mistral, llavallama, llavamistral models, get{type(model)}")
 
     hf_rope = model.model.layers[0].self_attn.rotary_emb 
     base = base if base is not None else hf_rope.base

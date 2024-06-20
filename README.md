@@ -29,9 +29,9 @@ model.clear()
 The searcher also support vision-language models inputs, e.g., LLaVA-Next,
 ```python  
 output = model.generate(
-    input_ids,
-    images=image_tensor, # also support images and image_sizes imput
-    image_sizes=image_sizes,
+  input_ids,
+  images=image_tensor, # also support images and image_sizes imput
+  image_sizes=image_sizes,
 )
 ```
 
