@@ -5,33 +5,46 @@ We introduce Query-aware Inference for LLMs (Q-LLM), a system designed to proces
 
 ![alt text](img/framework.png)
 
-## Usage
+## Quick Start
 ```python
+import torch
+from qllm.models import LlamaForCausalLM
+from transformers import AutoTokenizer
+import transformers
+
 from omegaconf import OmegaConf
 from qllm.utils import patch_hf, GreedySearch, patch_model_center
 
-# define your own tokenizer and model
+conf = OmegaConf.load("config/llama3-qllm-repr4-l1k-bs128-topk8-w4.yaml")
+model_path = "models/Meta-Llama-3-8B-Instruct"
 
-# Use Q-LLM upon your model
-conf = OmegaConf.load(config_path) # yamls in config
-model = patch_hf(model, config.type, **config)
+model = LlamaForCausalLM.from_pretrained(
+    model_path,
+    torch_dtype=torch.bfloat16,
+    trust_remote_code=True
+    ).to("cuda:0")
 
-# the GreedySearch is for divding input sequence into chunks (8196)
+tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, add_bos_token=True, add_eos_token=False)
+
+model = patch_hf(model, "qllm", conf.model)
 model = GreedySearch(model, tokenizer)
 
-# your own usage
-# output = model.generate(input_ids) # support model.generate inputs
+text = "xxx"
 
-# clear the storage
+encoded_text = tokenizer.encode(text)
+input_ids = torch.tensor(encoded_text).unsqueeze(0).to("cuda:0")
+
+output = model.generate(input_ids, max_length=200)
+print(output)
 model.clear()
 ```
 
 The searcher also support vision-language models inputs, e.g., LLaVA-Next,
 ```python  
 output = model.generate(
-  input_ids,
-  images=image_tensor, # also support images and image_sizes imput
-  image_sizes=image_sizes,
+    input_ids,
+    images=image_tensor, # also support images and image_sizes imput
+    image_sizes=image_sizes,
 )
 ```
 
